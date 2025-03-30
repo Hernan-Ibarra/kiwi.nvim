@@ -11,13 +11,13 @@ M.setup = function(opts, config)
 end
 
 local create_dirs = function(wiki_path)
-  local path = vim.fs.joinpath(vim.loop.os_homedir(), wiki_path)
+  local path = vim.fs.joinpath(vim.uv.os_homedir(), wiki_path)
   vim.uv.fs_mkdir(path, 448)
 end
 
 -- Get the default Wiki folder path
 M.get_wiki_path = function()
-  local default_dir = vim.fs.joinpath(vim.loop.os_homedir(), "wiki")
+  local default_dir = vim.fs.joinpath(vim.uv.os_homedir(), "wiki")
   return default_dir
 end
 -- Create wiki folder
@@ -85,7 +85,7 @@ M.choose_wiki = function(folders)
   }, function(choice)
     for _, props in pairs(folders) do
       if props.name == choice then
-        path = vim.fs.joinpath(vim.loop.os_homedir(), props.path)
+        path = vim.fs.joinpath(vim.uv.os_homedir(), props.path)
       end
     end
   end)
