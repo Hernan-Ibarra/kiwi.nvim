@@ -1,34 +1,36 @@
 local M = {}
 
--- Setup wiki folder
+---Setup wiki folder
+---@param opts (kiwi.Config | kiwi.WikiPath)?
+---@param config kiwi.Config
 M.setup = function(opts, config)
-  if opts then
-    config.folders = opts
-  else
-    config.path = M.get_wiki_path()
-  end
-  M.ensure_directories(config)
-end
-
-local create_dirs = function(wiki_path)
-  local path = vim.fs.joinpath(vim.uv.os_homedir(), wiki_path)
-  vim.uv.fs_mkdir(path, 448)
-end
-
--- Get the default Wiki folder path
-M.get_wiki_path = function()
-  local default_dir = vim.fs.joinpath(vim.uv.os_homedir(), "wiki")
-  return default_dir
-end
--- Create wiki folder
-M.ensure_directories = function(config)
-  if not config.folders then
-    create_dirs(config.path)
-    return
+  if type(opts) == "string" then
+    config.main = opts
+  elseif opts then
+    config = opts
   end
 
-  for _, props in ipairs(config.folders) do
-    create_dirs(props.path)
+  for _, dir in pairs(config) do
+    M.mkdirp(dir)
+  end
+end
+
+--- Adapted from oil.nvim source code
+---@param dir kiwi.WikiPath
+M.mkdirp = function(dir)
+  local mode = 484
+  local modifier = ""
+  local path = dir
+
+  while vim.fn.isdirectory(path) == 0 do
+    modifier = modifier .. ":h"
+    path = vim.fn.fnamemodify(dir, modifier)
+  end
+
+  while modifier ~= "" do
+    modifier = modifier:sub(3)
+    path = vim.fn.fnamemodify(dir, modifier)
+    vim.uv.fs_mkdir(path, mode)
   end
 end
 
@@ -92,7 +94,8 @@ M.choose_wiki = function(folders)
   return path
 end
 
--- Show prompt if multiple wiki path found or else choose default path
+---Show prompt if multiple wiki path found or else choose default path
+---@param config kiwi.Config
 M.prompt_folder = function(config)
   if config.folders ~= nil then
     local count = 0

@@ -9,6 +9,7 @@ M.todo = todo
 M.utils = utils
 M.VERSION = "0.4.0"
 
+---@param opts (kiwi.Config | kiwi.WikiPath)?
 M.setup = function(opts)
   utils.setup(opts, config)
 end
